@@ -6,7 +6,11 @@ import {
   useSendTransaction as useSendTransactionEvm,
   useSignMessage as useSignMessageEvm,
   useSignTransaction as useSignTransactionEvm,
-  useSignTypedData
+  useSignTypedData,
+  useCreateWallet,
+  useLoginWithPasskey,
+  useSignupWithPasskey,
+  useLinkAccount
 } from '@privy-io/react-auth';
 import { useImportWallet as useImportWalletEvm } from '@privy-io/react-auth';
 import {
@@ -57,6 +61,28 @@ function App() {
   const { signMessage: signMessageSolana } = useSignMessageSolana();
   const { signTransaction: signTransactionSolana } = useSignTransactionSolana();
   const { signAndSendTransaction: sendTransactionSolana } = useSendTransactionSolana();
+
+
+  const { loginWithPasskey } = useLoginWithPasskey();
+
+  const { signupWithPasskey } = useSignupWithPasskey();
+
+  const {linkEmail} = useLinkAccount();
+
+
+
+  const mainD = async () => {
+    const { createWallet } = useCreateWallet({
+      onSuccess: ({ wallet }) => {
+        console.log('Created wallet ', wallet);
+      },
+      onError: (error) => {
+        console.error('Failed to create wallet with error ', error)
+      }
+    });
+  }
+  console.log("Hello, word")
+  mainD();
 
   const allWallets = useMemo((): WalletInfo[] => {
     const evmWallets: WalletInfo[] = walletsEvm.map((wallet) => ({
@@ -396,7 +422,7 @@ function App() {
     }
   };
 
-  const handleSwitch  = async () =>{
+  const handleSwitch = async () => {
     // await swi
   }
 
@@ -425,6 +451,12 @@ function App() {
           )}
         </div>
 
+        <div>
+          <button onClick={loginWithPasskey}>Log in with passkey</button>
+        </div>
+        <div>
+          <button onClick={signupWithPasskey}>Sign up with passkey</button>
+        </div>
         {/* Wallet Selector */}
         <div className='mb-6 bg-gray-800 p-4 rounded'>
           <h2 className='text-xl font-semibold mb-2 text-white'>Select Wallet</h2>
@@ -449,6 +481,12 @@ function App() {
               </>
             )}
           </select>
+        </div>
+
+        <div>
+          <button onClick={ async ()=>{
+            await linkEmail()
+          }}>Link Gmail</button>
         </div>
 
         {/* switch chain */}

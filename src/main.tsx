@@ -11,7 +11,7 @@ window.Buffer = Buffer;
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
      <PrivyProvider
-      appId="app-id"
+      appId=""
 
       config={{
         // Create embedded wallets for users who don't have a wallet
@@ -24,5 +24,5 @@ createRoot(document.getElementById('root')!).render(
     >
     <App />
     </PrivyProvider>
-  </StrictMode>,
+  </StrictMode>
 )
