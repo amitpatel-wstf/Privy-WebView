@@ -1,4 +1,4 @@
-import { WalletInfo } from '../types/wallet.types';
+import type { WalletInfo } from '../types/wallet.types';
 
 interface WalletSelectorProps {
   wallets: WalletInfo[];

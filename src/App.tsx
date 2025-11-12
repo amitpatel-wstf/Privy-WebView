@@ -71,18 +71,14 @@ function App() {
 
 
 
-  const mainD = async () => {
-    const { createWallet } = useCreateWallet({
-      onSuccess: ({ wallet }) => {
-        console.log('Created wallet ', wallet);
-      },
-      onError: (error) => {
-        console.error('Failed to create wallet with error ', error)
-      }
-    });
-  }
-  console.log("Hello, word")
-  mainD();
+  useCreateWallet({
+    onSuccess: ({ wallet }) => {
+      console.log('Created wallet ', wallet);
+    },
+    onError: (error) => {
+      console.error('Failed to create wallet with error ', error)
+    }
+  });
 
   const allWallets = useMemo((): WalletInfo[] => {
     const evmWallets: WalletInfo[] = walletsEvm.map((wallet) => ({
@@ -452,10 +448,10 @@ function App() {
         </div>
 
         <div>
-          <button onClick={loginWithPasskey}>Log in with passkey</button>
+          <button onClick={() => loginWithPasskey()}>Log in with passkey</button>
         </div>
         <div>
-          <button onClick={signupWithPasskey}>Sign up with passkey</button>
+          <button onClick={() => signupWithPasskey()}>Sign up with passkey</button>
         </div>
         {/* Wallet Selector */}
         <div className='mb-6 bg-gray-800 p-4 rounded'>

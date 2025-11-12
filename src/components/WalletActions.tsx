@@ -1,4 +1,4 @@
-import { WalletInfo } from '../types/wallet.types';
+import type { WalletInfo } from '../types/wallet.types';
 
 interface WalletActionsProps {
   selectedWallet: WalletInfo | null;
@@ -18,7 +18,6 @@ const WalletActions = ({
   onSignRawHash,
 }: WalletActionsProps) => {
   const isEvmWallet = selectedWallet?.type === 'ethereum';
-  const isSolanaWallet = selectedWallet?.type === 'solana';
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 mb-6">

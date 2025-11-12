@@ -10,7 +10,7 @@ const UserProfile = () => {
 
   const handleLinkEmail = async () => {
     try {
-      await linkEmail(email);
+      await linkEmail();
       setEmail('');
       alert('✅ Email linked successfully');
     } catch (error) {
@@ -21,7 +21,7 @@ const UserProfile = () => {
 
   const handleLinkPhone = async () => {
     try {
-      await linkPhone(phone);
+      await linkPhone();
       setPhone('');
       alert('✅ Phone linked successfully');
     } catch (error) {
@@ -102,9 +102,9 @@ const UserProfile = () => {
               {user.linkedAccounts.map((account, idx) => (
                 <div key={idx} className="text-white text-sm">
                   <span className="text-blue-400">{account.type}</span>
-                  {account.address && `: ${account.address.slice(0, 10)}...`}
-                  {account.email && `: ${account.email}`}
-                  {account.phone && `: ${account.phone}`}
+                  {'address' in account && account.address ? `: ${account.address.slice(0, 10)}...` : ''}
+                  {'email' in account && account.email ? `: ${account.email}` : ''}
+                  {'phone' in account && account.phone ? `: ${account.phone}` : ''}
                 </div>
               ))}
             </div>
