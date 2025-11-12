@@ -46,6 +46,7 @@ function App() {
   const [privateKey, setPrivateKey] = useState('');
   const [selectedWallet, setSelectedWallet] = useState<WalletInfo | null>(null);
 
+
   const { login, logout, user, exportWallet: exportWalletEvm } = usePrivy();
   const { wallets: walletsEvm } = useWallets();
   const { wallets: walletsSolana } = useWalletsSolana();
@@ -62,23 +63,46 @@ function App() {
   const { signTransaction: signTransactionSolana } = useSignTransactionSolana();
   const { signAndSendTransaction: sendTransactionSolana } = useSendTransactionSolana();
 
+  const { linkEmail } = useLinkAccount();
 
-  const { loginWithPasskey } = useLoginWithPasskey();
-
-  const { signupWithPasskey } = useSignupWithPasskey();
-
-  const {linkEmail} = useLinkAccount();
-
-
-
-  useCreateWallet({
-    onSuccess: ({ wallet }) => {
-      console.log('Created wallet ', wallet);
+  const { loginWithPasskey } = useLoginWithPasskey({
+    onComplete: (user) => {
+      console.log('Logged in with passkey:', user);
     },
     onError: (error) => {
-      console.error('Failed to create wallet with error ', error)
+      console.error('Passkey login error:', error);
     }
   });
+
+  const { signupWithPasskey } = useSignupWithPasskey({
+    onComplete: (user) => {
+      console.log('Signed up with passkey:', user);
+      // Automatically create wallet after signup
+      handleCreateWallet();
+    },
+    onError: (error) => {
+      console.error('Passkey signup error:', error);
+    }
+  });
+
+  const { createWallet } = useCreateWallet({
+    onSuccess: ({ wallet }) => {
+      console.log('Created wallet:', wallet);
+      alert(`Wallet created successfully! Address: ${wallet.address}`);
+    },
+    onError: (error) => {
+      console.error('Failed to create wallet with error:', error);
+      alert('Failed to create wallet');
+    }
+  });
+
+  const handleCreateWallet = async () => {
+    try {
+      await createWallet();
+    } catch (error) {
+      console.error('Error creating wallet:', error);
+    }
+  };
 
   const allWallets = useMemo((): WalletInfo[] => {
     const evmWallets: WalletInfo[] = walletsEvm.map((wallet) => ({
@@ -508,14 +532,21 @@ function App() {
             )}
           </div>
 
-          {/* Account Management Section */}
+          {/* Wallet Creation & Account Management Section */}
           <div className='mb-8 bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-gray-600'>
             <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
-              <span className='text-green-400'>🔗</span> Account Management
+              <span className='text-green-400'>🔗</span> Wallet Creation & Account Management
             </h2>
             <div className='flex flex-wrap gap-3'>
               <button
-                onClick={async () => await linkEmail()}
+                onClick={handleCreateWallet}
+                className='bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                disabled={!user}
+              >
+                ➕ Create New Wallet
+              </button>
+              <button
+                onClick={() => linkEmail()}
                 className='bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-green-500/50'
               >
                 Link Gmail
