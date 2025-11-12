@@ -10,7 +10,8 @@ import {
   useCreateWallet,
   useLoginWithPasskey,
   useSignupWithPasskey,
-  useLinkAccount
+  useLinkAccount,
+  useLinkWithPasskey
 } from '@privy-io/react-auth';
 import { useImportWallet as useImportWalletEvm } from '@privy-io/react-auth';
 import {
@@ -47,7 +48,7 @@ function App() {
   const [selectedWallet, setSelectedWallet] = useState<WalletInfo | null>(null);
 
 
-  const { login, logout, user, exportWallet: exportWalletEvm } = usePrivy();
+  const { login, logout, user, exportWallet: exportWalletEvm, unlinkPasskey } = usePrivy();
   const { wallets: walletsEvm } = useWallets();
   const { wallets: walletsSolana } = useWalletsSolana();
   const { importWallet: importWalletEvm } = useImportWalletEvm();
@@ -64,6 +65,17 @@ function App() {
   const { signAndSendTransaction: sendTransactionSolana } = useSendTransactionSolana();
 
   const { linkEmail } = useLinkAccount();
+  
+  const { linkWithPasskey } = useLinkWithPasskey({
+    onSuccess: (user) => {
+      console.log('Passkey linked successfully:', user);
+      alert('Passkey linked successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to link passkey:', error);
+      alert('Failed to link passkey');
+    }
+  });
 
   const { loginWithPasskey } = useLoginWithPasskey({
     onComplete: (user) => {
@@ -444,7 +456,49 @@ function App() {
 
   const handleSwitch = async () => {
     // await swi
-  }
+  };
+
+  const handleLinkPasskey = async () => {
+    try {
+      await linkWithPasskey();
+    } catch (error) {
+      console.error('Error linking passkey:', error);
+    }
+  };
+
+  const handleUnlinkPasskey = async () => {
+    if (!user) {
+      alert('Please login first');
+      return;
+    }
+
+    // Find passkey accounts
+    const passkeyAccounts = user.linkedAccounts.filter(
+      (account) => account.type === 'passkey'
+    );
+
+    if (passkeyAccounts.length === 0) {
+      alert('No passkeys found to unlink');
+      return;
+    }
+
+    // If multiple passkeys, show selection (for now, we'll unlink the first one)
+    const passkeyToUnlink = passkeyAccounts[0];
+    
+    try {
+      await unlinkPasskey(passkeyToUnlink.credentialId);
+      alert('Passkey unlinked successfully!');
+      console.log('Unlinked passkey:', passkeyToUnlink.credentialId);
+    } catch (error) {
+      console.error('Error unlinking passkey:', error);
+      alert('Failed to unlink passkey');
+    }
+  };
+
+  // Get passkey info for display
+  const passkeyAccounts = user?.linkedAccounts.filter(
+    (account) => account.type === 'passkey'
+  ) || [];
 
   return (
     <>
@@ -457,6 +511,45 @@ function App() {
             </h1>
             <p className='text-gray-400 text-lg'>Manage your EVM and Solana wallets with ease</p>
           </div>
+
+          {/* Passkey Management Section */}
+          {user && (
+            <div className='mb-8 bg-gradient-to-r from-purple-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-purple-600'>
+              <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+                <span className='text-purple-400'>🔑</span> Passkey Management
+              </h2>
+              <div className='mb-4'>
+                <p className='text-gray-300 mb-2'>
+                  Linked Passkeys: <span className='text-white font-semibold'>{passkeyAccounts.length}</span>
+                </p>
+                {passkeyAccounts.length > 0 && (
+                  <div className='bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3'>
+                    {passkeyAccounts.map((account, index) => (
+                      <div key={account.credentialId} className='text-sm text-gray-400 mb-1'>
+                        <span className='text-purple-400'>Passkey {index + 1}:</span>{' '}
+                        <span className='font-mono text-xs'>{account.credentialId.slice(0, 30)}...</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className='flex flex-wrap gap-3'>
+                <button
+                  onClick={handleLinkPasskey}
+                  className='bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-purple-500/50'
+                >
+                  ➕ Link New Passkey
+                </button>
+                <button
+                  onClick={handleUnlinkPasskey}
+                  className='bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={passkeyAccounts.length === 0}
+                >
+                  ❌ Unlink Passkey
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Authentication Section */}
           <div className='mb-8 bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-gray-600'>
