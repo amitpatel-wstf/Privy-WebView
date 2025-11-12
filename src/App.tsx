@@ -91,7 +91,7 @@ function App() {
     onComplete: (user) => {
       console.log('Signed up with passkey:', user);
       // Automatically create wallet after signup
-      handleCreateWallet();
+      // handleCreateWallet();
     },
     onError: (error) => {
       console.error('Passkey signup error:', error);
