@@ -11,8 +11,7 @@ window.Buffer = Buffer;
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
      <PrivyProvider
-      appId=""
-
+      appId={import.meta.env.VITE_APP_ID}
       config={{
         // Create embedded wallets for users who don't have a wallet
         embeddedWallets: {
