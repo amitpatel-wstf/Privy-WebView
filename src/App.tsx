@@ -424,192 +424,266 @@ function App() {
 
   return (
     <>
-      <div className='min-h-[100vh] w-[100vw] bg-gray-900 p-8 overflow-auto'>
-        <h1 className='text-3xl font-bold mb-6 text-white'>Wallet Management & Actions</h1>
+      <div className='min-h-screen w-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 overflow-auto'>
+        <div className='max-w-7xl mx-auto'>
+          {/* Header */}
+          <div className='text-center mb-12'>
+            <h1 className='text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600'>
+              Wallet Management Dashboard
+            </h1>
+            <p className='text-gray-400 text-lg'>Manage your EVM and Solana wallets with ease</p>
+          </div>
 
-        <div className='mb-6'>
-          <button
-            onClick={login}
-            className='bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600'
-          >
-            Login
-          </button>
-          {user && (
-            <>
+          {/* Authentication Section */}
+          <div className='mb-8 bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-gray-600'>
+            <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+              <span className='text-blue-400'>🔐</span> Authentication
+            </h2>
+            <div className='flex flex-wrap gap-3 items-center'>
               <button
-                onClick={logout}
-                className='bg-red-500 text-white px-4 py-2 rounded mr-2 hover:bg-red-600'
+                onClick={login}
+                className='bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-blue-500/50'
               >
-                Logout
+                Login
               </button>
-              <span className='text-white'>Logged in as: {user.id}</span>
-            </>
-          )}
-        </div>
+              <button
+                onClick={() => loginWithPasskey()}
+                className='bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-cyan-700 transition-all shadow-lg hover:shadow-cyan-500/50'
+              >
+                Login with Passkey
+              </button>
+              <button
+                onClick={() => signupWithPasskey()}
+                className='bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-teal-500/50'
+              >
+                Sign up with Passkey
+              </button>
+              {user && (
+                <>
+                  <button
+                    onClick={logout}
+                    className='bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50'
+                  >
+                    Logout
+                  </button>
+                  <span className='text-green-400 font-semibold bg-gray-800 px-4 py-2 rounded-lg border border-green-500/30'>
+                    ✓ Logged in as: {user.id.slice(0, 20)}...
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
 
-        <div>
-          <button onClick={() => loginWithPasskey()}>Log in with passkey</button>
-        </div>
-        <div>
-          <button onClick={() => signupWithPasskey()}>Sign up with passkey</button>
-        </div>
-        {/* Wallet Selector */}
-        <div className='mb-6 bg-gray-800 p-4 rounded'>
-          <h2 className='text-xl font-semibold mb-2 text-white'>Select Wallet</h2>
-          <select
-            value={selectedWallet?.address || ''}
-            onChange={(e) => {
-              const wallet = allWallets.find((w) => w.address === e.target.value);
-              setSelectedWallet(wallet || null);
-            }}
-            className='w-full px-3 py-2 border rounded bg-white text-black'
-          >
-            {allWallets.length === 0 ? (
-              <option value=''>No wallets available</option>
-            ) : (
-              <>
-                <option value=''>Select a wallet</option>
-                {allWallets.map((wallet) => (
-                  <option key={wallet.address} value={wallet.address}>
-                    {wallet.address} [{wallet.type === 'ethereum' ? 'ethereum' : 'solana'}]
-                  </option>
-                ))}
-              </>
+          {/* Wallet Selector Section */}
+          <div className='mb-8 bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-gray-600'>
+            <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+              <span className='text-purple-400'>👛</span> Wallet Selection
+            </h2>
+            <select
+              value={selectedWallet?.address || ''}
+              onChange={(e) => {
+                const wallet = allWallets.find((w) => w.address === e.target.value);
+                setSelectedWallet(wallet || null);
+              }}
+              className='w-full px-4 py-3 border-2 border-gray-600 rounded-lg bg-gray-900 text-white font-mono text-sm focus:border-purple-500 focus:outline-none transition-all'
+            >
+              {allWallets.length === 0 ? (
+                <option value=''>No wallets available</option>
+              ) : (
+                <>
+                  <option value=''>Select a wallet</option>
+                  {allWallets.map((wallet) => (
+                    <option key={wallet.address} value={wallet.address}>
+                      {wallet.address} [{wallet.type === 'ethereum' ? '⟠ Ethereum' : '◎ Solana'}]
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
+            {selectedWallet && (
+              <div className='mt-3 p-3 bg-gray-900 rounded-lg border border-gray-700'>
+                <p className='text-sm text-gray-400'>Selected: <span className='text-white font-mono'>{selectedWallet.address}</span></p>
+                <p className='text-sm text-gray-400'>Type: <span className='text-purple-400 font-semibold'>{selectedWallet.type === 'ethereum' ? '⟠ Ethereum' : '◎ Solana'}</span></p>
+              </div>
             )}
-          </select>
-        </div>
+          </div>
 
-        <div>
-          <button onClick={ async ()=>{
-            await linkEmail()
-          }}>Link Gmail</button>
-        </div>
+          {/* Account Management Section */}
+          <div className='mb-8 bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-gray-600'>
+            <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+              <span className='text-green-400'>🔗</span> Account Management
+            </h2>
+            <div className='flex flex-wrap gap-3'>
+              <button
+                onClick={async () => await linkEmail()}
+                className='bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-green-500/50'
+              >
+                Link Gmail
+              </button>
+              <button
+                onClick={handleSwitch}
+                className='bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-amber-500/50'
+              >
+                Switch Network
+              </button>
+            </div>
+          </div>
 
-        {/* switch chain */}
-        <div>
-          <h2>Switch Network</h2>
-          <button onClick={handleSwitch}>Switch</button>
-        </div>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8'>
+            {/* Export Wallet Section */}
+            <div className='bg-gradient-to-br from-green-900/30 to-gray-800 p-6 rounded-xl shadow-2xl border border-green-500/30'>
+              <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+                <span className='text-green-400'>📤</span> Export Wallet
+              </h2>
+              <p className='text-gray-400 text-sm mb-4'>Export your wallet private keys securely</p>
+              <div className='flex flex-col gap-3'>
+                <button
+                  onClick={handleExportEvm}
+                  className='bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!user}
+                >
+                  ⟠ Export EVM Wallet
+                </button>
+                <button
+                  onClick={handleExportSolana}
+                  className='bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!user}
+                >
+                  ◎ Export Solana Wallet
+                </button>
+              </div>
+            </div>
 
-        {/* Export Wallet */}
-        <div className='mb-6 bg-gray-800 p-4 rounded'>
-          <h2 className='text-xl font-semibold mb-2 text-white'>Export Wallet</h2>
-          <button
-            onClick={handleExportEvm}
-            className='bg-green-500 text-white px-4 py-2 rounded mr-2 hover:bg-green-600'
-            disabled={!user}
-          >
-            Export EVM Wallet
-          </button>
-          <button
-            onClick={handleExportSolana}
-            className='bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700'
-            disabled={!user}
-          >
-            Export Solana Wallet
-          </button>
-        </div>
+            {/* Import Wallet Section */}
+            <div className='bg-gradient-to-br from-purple-900/30 to-gray-800 p-6 rounded-xl shadow-2xl border border-purple-500/30'>
+              <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+                <span className='text-purple-400'>📥</span> Import Wallet
+              </h2>
+              <p className='text-gray-400 text-sm mb-4'>Import existing wallets using private keys</p>
+              <input
+                type='password'
+                value={privateKey}
+                onChange={(e) => setPrivateKey(e.target.value)}
+                placeholder='Enter private key (0x... for EVM, base58 for Solana)'
+                className='w-full px-4 py-3 border-2 border-gray-600 rounded-lg mb-3 bg-gray-900 text-white font-mono text-sm focus:border-purple-500 focus:outline-none transition-all'
+              />
+              <div className='flex flex-col gap-3'>
+                <button
+                  onClick={handleImportEvm}
+                  className='bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!privateKey.trim()}
+                >
+                  ⟠ Import EVM Wallet
+                </button>
+                <button
+                  onClick={handleImportSolana}
+                  className='bg-gradient-to-r from-violet-500 to-violet-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-violet-600 hover:to-violet-700 transition-all shadow-lg hover:shadow-violet-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!privateKey.trim()}
+                >
+                  ◎ Import Solana Wallet
+                </button>
+              </div>
+            </div>
+          </div>
 
-        {/* Import Wallet */}
-        <div className='mb-6 bg-gray-800 p-4 rounded'>
-          <h2 className='text-xl font-semibold mb-2 text-white'>Import Wallet</h2>
-          <input
-            type='text'
-            value={privateKey}
-            onChange={(e) => setPrivateKey(e.target.value)}
-            placeholder='Enter private key (0x... for EVM, base58 for Solana)'
-            className='w-full px-3 py-2 border rounded mb-2'
-          />
-          <button
-            onClick={handleImportEvm}
-            className='bg-purple-500 text-white px-4 py-2 rounded mr-2 hover:bg-purple-600'
-            disabled={!privateKey.trim()}
-          >
-            Import EVM Wallet
-          </button>
-          <button
-            onClick={handleImportSolana}
-            className='bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700'
-            disabled={!privateKey.trim()}
-          >
-            Import Solana Wallet
-          </button>
-        </div>
+          {/* Signing Operations */}
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8'>
+            {/* Sign Messages Section */}
+            <div className='bg-gradient-to-br from-yellow-900/30 to-gray-800 p-6 rounded-xl shadow-2xl border border-yellow-500/30'>
+              <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+                <span className='text-yellow-400'>✍️</span> Sign Messages
+              </h2>
+              <p className='text-gray-400 text-sm mb-4'>Sign messages to verify ownership</p>
+              <div className='flex flex-col gap-3'>
+                <button
+                  onClick={handleSignMessageEvm}
+                  className='bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-yellow-600 hover:to-yellow-700 transition-all shadow-lg hover:shadow-yellow-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!isEvmWallet}
+                >
+                  ⟠ EVM
+                </button>
+                <button
+                  onClick={handleSignMessageSolana}
+                  className='bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!isSolanaWallet}
+                >
+                  ◎ Solana
+                </button>
+              </div>
+            </div>
 
-        {/* Sign Messages */}
-        <div className='mb-6 bg-gray-800 p-4 rounded'>
-          <h2 className='text-xl font-semibold mb-2 text-white'>Sign Messages</h2>
-          <button
-            onClick={handleSignMessageEvm}
-            className='bg-yellow-500 text-white px-4 py-2 rounded mr-2 hover:bg-yellow-600'
-            disabled={!isEvmWallet}
-          >
-            Sign Message (EVM)
-          </button>
-          <button
-            onClick={handleSignMessageSolana}
-            className='bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700'
-            disabled={!isSolanaWallet}
-          >
-            Sign Message (Solana)
-          </button>
-        </div>
+            {/* Sign Transactions Section */}
+            <div className='bg-gradient-to-br from-orange-900/30 to-gray-800 p-6 rounded-xl shadow-2xl border border-orange-500/30'>
+              <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+                <span className='text-orange-400'>📝</span> Sign Transactions
+              </h2>
+              <p className='text-gray-400 text-sm mb-4'>Sign transactions without sending</p>
+              <div className='flex flex-col gap-3'>
+                <button
+                  onClick={handleSignTransactionEvm}
+                  className='bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-orange-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!isEvmWallet}
+                >
+                  ⟠ EVM
+                </button>
+                <button
+                  onClick={handleSignTransactionSolana}
+                  className='bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!isSolanaWallet}
+                >
+                  ◎ Solana
+                </button>
+              </div>
+            </div>
 
-        {/* Sign Transactions */}
-        <div className='mb-6 bg-gray-800 p-4 rounded'>
-          <h2 className='text-xl font-semibold mb-2 text-white'>Sign Transactions</h2>
-          <button
-            onClick={handleSignTransactionEvm}
-            className='bg-orange-500 text-white px-4 py-2 rounded mr-2 hover:bg-orange-600'
-            disabled={!isEvmWallet}
-          >
-            Sign Transaction (EVM)
-          </button>
-          <button
-            onClick={handleSignTransactionSolana}
-            className='bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700'
-            disabled={!isSolanaWallet}
-          >
-            Sign Transaction (Solana)
-          </button>
-        </div>
+            {/* Send Transactions Section */}
+            <div className='bg-gradient-to-br from-red-900/30 to-gray-800 p-6 rounded-xl shadow-2xl border border-red-500/30'>
+              <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+                <span className='text-red-400'>🚀</span> Send Transactions
+              </h2>
+              <p className='text-gray-400 text-sm mb-4'>Sign and broadcast transactions</p>
+              <div className='flex flex-col gap-3'>
+                <button
+                  onClick={handleSendTransactionEvm}
+                  className='bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!isEvmWallet}
+                >
+                  ⟠ EVM
+                </button>
+                <button
+                  onClick={handleSendTransactionSolana}
+                  className='bg-gradient-to-r from-rose-500 to-rose-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-rose-600 hover:to-rose-700 transition-all shadow-lg hover:shadow-rose-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={!isSolanaWallet}
+                >
+                  ◎ Solana
+                </button>
+              </div>
+            </div>
+          </div>
 
-        {/* Send Transactions */}
-        <div className='mb-6 bg-gray-800 p-4 rounded'>
-          <h2 className='text-xl font-semibold mb-2 text-white'>Send Transactions</h2>
-          <button
-            onClick={handleSendTransactionEvm}
-            className='bg-red-500 text-white px-4 py-2 rounded mr-2 hover:bg-red-600'
-            disabled={!isEvmWallet}
-          >
-            Send Transaction (EVM)
-          </button>
-          <button
-            onClick={handleSendTransactionSolana}
-            className='bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700'
-            disabled={!isSolanaWallet}
-          >
-            Send Transaction (Solana)
-          </button>
-        </div>
-
-        {/* Advanced EVM Actions */}
-        <div className='mb-6 bg-gray-800 p-4 rounded'>
-          <h2 className='text-xl font-semibold mb-2 text-white'>Advanced EVM Actions</h2>
-          <button
-            onClick={handleSignTypedData}
-            className='bg-indigo-500 text-white px-4 py-2 rounded mr-2 hover:bg-indigo-600'
-            disabled={!isEvmWallet}
-          >
-            Sign Typed Data (EVM)
-          </button>
-          <button
-            onClick={handleSignRawHash}
-            className='bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700'
-            disabled={!isEvmWallet}
-          >
-            Sign Raw Hash (EVM)
-          </button>
+          {/* Advanced EVM Actions Section */}
+          <div className='bg-gradient-to-br from-indigo-900/30 to-gray-800 p-6 rounded-xl shadow-2xl border border-indigo-500/30'>
+            <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+              <span className='text-indigo-400'>⚡</span> Advanced EVM Actions
+            </h2>
+            <p className='text-gray-400 text-sm mb-4'>Advanced signing operations for Ethereum</p>
+            <div className='flex flex-wrap gap-3'>
+              <button
+                onClick={handleSignTypedData}
+                className='bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-indigo-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                disabled={!isEvmWallet}
+              >
+                Sign Typed Data (EIP-712)
+              </button>
+              <button
+                onClick={handleSignRawHash}
+                className='bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                disabled={!isEvmWallet}
+              >
+                Sign Raw Hash
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>
