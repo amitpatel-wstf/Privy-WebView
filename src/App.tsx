@@ -46,6 +46,7 @@ type WalletInfo = {
 function App() {
   const [privateKey, setPrivateKey] = useState('');
   const [selectedWallet, setSelectedWallet] = useState<WalletInfo | null>(null);
+  const [selectedPasskeyId, setSelectedPasskeyId] = useState<string>('');
 
 
   const { login, logout, user, exportWallet: exportWalletEvm, unlinkPasskey } = usePrivy();
@@ -472,23 +473,16 @@ function App() {
       return;
     }
 
-    // Find passkey accounts
-    const passkeyAccounts = user.linkedAccounts.filter(
-      (account) => account.type === 'passkey'
-    );
-
-    if (passkeyAccounts.length === 0) {
-      alert('No passkeys found to unlink');
+    if (!selectedPasskeyId) {
+      alert('Please select a passkey to unlink');
       return;
     }
-
-    // If multiple passkeys, show selection (for now, we'll unlink the first one)
-    const passkeyToUnlink = passkeyAccounts[0];
     
     try {
-      await unlinkPasskey(passkeyToUnlink.credentialId);
+      await unlinkPasskey(selectedPasskeyId);
       alert('Passkey unlinked successfully!');
-      console.log('Unlinked passkey:', passkeyToUnlink.credentialId);
+      console.log('Unlinked passkey:', selectedPasskeyId);
+      setSelectedPasskeyId(''); // Reset selection
     } catch (error) {
       console.error('Error unlinking passkey:', error);
       alert('Failed to unlink passkey');
@@ -519,17 +513,33 @@ function App() {
                 <span className='text-purple-400'>🔑</span> Passkey Management
               </h2>
               <div className='mb-4'>
-                <p className='text-gray-300 mb-2'>
+                <p className='text-gray-300 mb-3'>
                   Linked Passkeys: <span className='text-white font-semibold'>{passkeyAccounts.length}</span>
                 </p>
                 {passkeyAccounts.length > 0 && (
-                  <div className='bg-gray-900 p-3 rounded-lg border border-gray-700 mb-3'>
-                    {passkeyAccounts.map((account, index) => (
-                      <div key={account.credentialId} className='text-sm text-gray-400 mb-1'>
-                        <span className='text-purple-400'>Passkey {index + 1}:</span>{' '}
-                        <span className='font-mono text-xs'>{account.credentialId.slice(0, 30)}...</span>
+                  <div className='mb-4'>
+                    <label className='block text-gray-300 mb-2 font-semibold'>
+                      Select Passkey to Remove:
+                    </label>
+                    <select
+                      value={selectedPasskeyId}
+                      onChange={(e) => setSelectedPasskeyId(e.target.value)}
+                      className='w-full px-4 py-3 border-2 border-gray-600 rounded-lg bg-gray-900 text-white font-mono text-sm focus:border-purple-500 focus:outline-none transition-all'
+                    >
+                      <option value=''>-- Select a passkey --</option>
+                      {passkeyAccounts.map((account, index) => (
+                        <option key={account.credentialId} value={account.credentialId}>
+                          Passkey {index + 1}: {account.credentialId.slice(0, 40)}...
+                        </option>
+                      ))}
+                    </select>
+                    {selectedPasskeyId && (
+                      <div className='mt-3 p-3 bg-gray-900 rounded-lg border border-red-500/30'>
+                        <p className='text-sm text-gray-400'>
+                          Selected: <span className='text-red-400 font-mono text-xs break-all'>{selectedPasskeyId}</span>
+                        </p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>
@@ -543,9 +553,9 @@ function App() {
                 <button
                   onClick={handleUnlinkPasskey}
                   className='bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
-                  disabled={passkeyAccounts.length === 0}
+                  disabled={!selectedPasskeyId}
                 >
-                  ❌ Unlink Passkey
+                  ❌ Unlink Selected Passkey
                 </button>
               </div>
             </div>
