@@ -455,8 +455,25 @@ function App() {
     }
   };
 
-  const handleSwitch = async () => {
-    // await swi
+  const handleSwitchNetwork = async (chainId: number) => {
+    if (!selectedWallet || selectedWallet.type !== 'ethereum') {
+      alert('Please select an Ethereum wallet to switch networks');
+      return;
+    }
+
+    const wallet = walletsEvm.find(w => w.address === selectedWallet.address);
+    if (!wallet) {
+      alert('Wallet not found');
+      return;
+    }
+
+    try {
+      await wallet.switchChain(chainId);
+      alert(`Switched to chain ${chainId} successfully!`);
+    } catch (error) {
+      console.error('Failed to switch network:', error);
+      alert('Failed to switch network');
+    }
   };
 
   const handleLinkPasskey = async () => {
@@ -654,12 +671,62 @@ function App() {
               >
                 Link Gmail
               </button>
-              <button
-                onClick={handleSwitch}
-                className='bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-amber-500/50'
-              >
-                Switch Network
-              </button>
+              <div className='relative group'>
+                <button
+                  className='bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-amber-500/50'
+                  disabled={!selectedWallet || selectedWallet.type !== 'ethereum'}
+                >
+                  Switch Network
+                </button>
+                {selectedWallet && selectedWallet.type === 'ethereum' && (
+                  <div className='absolute left-0 top-full mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10'>
+                    <div className='p-2 space-y-1'>
+                      <button
+                        onClick={() => handleSwitchNetwork(1)}
+                        className='w-full text-left px-4 py-2 text-white hover:bg-gray-700 rounded transition-colors'
+                      >
+                        🔷 Ethereum Mainnet
+                      </button>
+                      <button
+                        onClick={() => handleSwitchNetwork(8453)}
+                        className='w-full text-left px-4 py-2 text-white hover:bg-gray-700 rounded transition-colors'
+                      >
+                        🔵 Base
+                      </button>
+                      <button
+                        onClick={() => handleSwitchNetwork(10)}
+                        className='w-full text-left px-4 py-2 text-white hover:bg-gray-700 rounded transition-colors'
+                      >
+                        🔴 Optimism
+                      </button>
+                      <button
+                        onClick={() => handleSwitchNetwork(137)}
+                        className='w-full text-left px-4 py-2 text-white hover:bg-gray-700 rounded transition-colors'
+                      >
+                        🟣 Polygon
+                      </button>
+                      <button
+                        onClick={() => handleSwitchNetwork(42161)}
+                        className='w-full text-left px-4 py-2 text-white hover:bg-gray-700 rounded transition-colors'
+                      >
+                        🔵 Arbitrum
+                      </button>
+                      <button
+                        onClick={() => handleSwitchNetwork(56)}
+                        className='w-full text-left px-4 py-2 text-white hover:bg-gray-700 rounded transition-colors'
+                      >
+                        🟡 BNB Smart Chain
+                      </button>
+                      <button
+                        onClick={() => handleSwitchNetwork(1301)}
+                        className='w-full text-left px-4 py-2 text-white hover:bg-gray-700 rounded transition-colors'
+                      >
+                        🦄 Unichain
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

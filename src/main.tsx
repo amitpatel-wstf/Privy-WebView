@@ -4,21 +4,32 @@ import './index.css'
 import App from './App.tsx'
 import {PrivyProvider} from '@privy-io/react-auth';
 import { Buffer } from 'buffer';
+import { mainnet, base, optimism, polygon, arbitrum, bsc } from 'viem/chains';
 
 // Polyfill Buffer for browser environment
 window.Buffer = Buffer;
+
+// Unichain configuration
+const unichain = {
+  id: 1301,
+  name: 'Unichain',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://sepolia.unichain.org'] },
+    public: { http: ['https://sepolia.unichain.org'] },
+  },
+  blockExplorers: {
+    default: { name: 'Uniscan', url: 'https://sepolia.uniscan.xyz' },
+  },
+};
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
      <PrivyProvider
       appId={import.meta.env.VITE_APP_ID}
       config={{
-        // Create embedded wallets for users who don't have a wallet
-        embeddedWallets: {
-          ethereum: {
-            createOnLogin: 'users-without-wallets'
-          }
-        }
+        defaultChain: mainnet,
+        supportedChains: [mainnet, base, optimism, polygon, arbitrum, bsc, unichain],
       }}
     >
     <App />
