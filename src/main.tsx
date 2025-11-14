@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import {PrivyProvider} from '@privy-io/react-auth';
 import { Buffer } from 'buffer';
-import { mainnet, base, optimism, polygon, arbitrum, bsc } from 'viem/chains';
+import { mainnet, base, optimism, polygon, arbitrum, bsc, baseSepolia } from 'viem/chains';
 
 // Polyfill Buffer for browser environment
 window.Buffer = Buffer;
@@ -29,8 +29,15 @@ createRoot(document.getElementById('root')!).render(
       appId={import.meta.env.VITE_APP_ID}
       config={{
         defaultChain: mainnet,
-        supportedChains: [mainnet, base, optimism, polygon, arbitrum, bsc, unichain],
+        supportedChains: [mainnet, base, optimism, polygon, arbitrum, bsc, unichain,baseSepolia],
+        appearance:{
+          // logo:"https://unsplash.com/photos/red-apple-on-white-background-rxN2MRdFJVg"
+          theme:"dark",
+          //login message
+          // loginMessage:"Hello,User"
+        }
       }}
+      
     >
     <App />
     </PrivyProvider>
