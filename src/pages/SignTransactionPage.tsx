@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
   useWallets,
-  useSignMessage as useSignMessageEvm,
   useSendTransaction as useSendTransactionEvm,
   useSignTransaction as useSignTransactionEvm,
   useSignTypedData,

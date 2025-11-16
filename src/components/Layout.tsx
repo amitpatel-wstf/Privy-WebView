@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
+import type { ReactNode } from 'react';
 
 interface LayoutProps {
   children: ReactNode;
