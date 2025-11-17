@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   usePrivy,
   useLoginWithPasskey,
@@ -8,9 +9,17 @@ import {
 } from '@privy-io/react-auth';
 
 const LoginPage = () => {
-  const { login, logout, user, unlinkPasskey } = usePrivy();
+  const { login, logout, user, authenticated, unlinkPasskey } = usePrivy();
+  const navigate = useNavigate();
   const [selectedPasskeyId, setSelectedPasskeyId] = useState<string>('');
   const { linkEmail } = useLinkAccount();
+
+  // Redirect to wallet page if already authenticated
+  useEffect(() => {
+    if (authenticated) {
+      navigate('/wallets', { replace: true });
+    }
+  }, [authenticated, navigate]);
 
   const { linkWithPasskey } = useLinkWithPasskey({
     onSuccess: (user) => {
@@ -26,6 +35,7 @@ const LoginPage = () => {
   const { loginWithPasskey } = useLoginWithPasskey({
     onComplete: (user) => {
       console.log('Logged in with passkey:', user);
+      navigate('/wallets', { replace: true });
     },
     onError: (error) => {
       console.error('Passkey login error:', error);
@@ -35,11 +45,21 @@ const LoginPage = () => {
   const { signupWithPasskey } = useSignupWithPasskey({
     onComplete: (user) => {
       console.log('Signed up with passkey:', user);
+      navigate('/wallets', { replace: true });
     },
     onError: (error) => {
       console.error('Passkey signup error:', error);
     },
   });
+
+  const handleLogin = async () => {
+    try {
+      await login();
+      // Navigation will happen automatically via useEffect when authenticated changes
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  };
 
   const handleLinkPasskey = async () => {
     try {
@@ -75,28 +95,28 @@ const LoginPage = () => {
     user?.linkedAccounts.filter((account) => account.type === 'passkey') || [];
 
   return (
-    <div className='space-y-8'>
+    <div className='space-y-4 sm:space-y-6 md:space-y-8'>
       {/* Authentication Section */}
-      <div className='bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-gray-600'>
-        <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+      <div className='bg-gradient-to-r from-gray-800 to-gray-700 p-4 sm:p-6 rounded-xl shadow-2xl border border-gray-600'>
+        <h2 className='text-xl sm:text-2xl font-bold mb-4 text-white flex items-center gap-2'>
           <span className='text-blue-400'>🔐</span> Authentication
         </h2>
-        <div className='flex flex-wrap gap-3 items-center'>
+        <div className='flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-center'>
           <button
-            onClick={login}
-            className='bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-blue-500/50'
+            onClick={handleLogin}
+            className='bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-blue-500/50 text-sm sm:text-base'
           >
             Login
           </button>
           <button
             onClick={() => loginWithPasskey()}
-            className='bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-cyan-700 transition-all shadow-lg hover:shadow-cyan-500/50'
+            className='bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-cyan-700 transition-all shadow-lg hover:shadow-cyan-500/50 text-sm sm:text-base'
           >
             Login with Passkey
           </button>
           <button
             onClick={() => signupWithPasskey()}
-            className='bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-teal-500/50'
+            className='bg-gradient-to-r from-teal-500 to-teal-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-teal-500/50 text-sm sm:text-base'
           >
             Sign up with Passkey
           </button>
@@ -104,11 +124,11 @@ const LoginPage = () => {
             <>
               <button
                 onClick={logout}
-                className='bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50'
+                className='bg-gradient-to-r from-red-500 to-red-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50 text-sm sm:text-base'
               >
                 Logout
               </button>
-              <span className='text-green-400 font-semibold bg-gray-800 px-4 py-2 rounded-lg border border-green-500/30'>
+              <span className='text-green-400 font-semibold bg-gray-800 px-3 sm:px-4 py-2 rounded-lg border border-green-500/30 text-xs sm:text-sm text-center'>
                 ✓ Logged in as: {user.id.slice(0, 20)}...
               </span>
             </>
@@ -118,8 +138,8 @@ const LoginPage = () => {
 
       {/* Passkey Management Section */}
       {user && (
-        <div className='bg-gradient-to-r from-purple-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-purple-600'>
-          <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+        <div className='bg-gradient-to-r from-purple-800 to-gray-700 p-4 sm:p-6 rounded-xl shadow-2xl border border-purple-600'>
+          <h2 className='text-xl sm:text-2xl font-bold mb-4 text-white flex items-center gap-2'>
             <span className='text-purple-400'>🔑</span> Passkey Management
           </h2>
           <div className='mb-4'>
@@ -157,16 +177,16 @@ const LoginPage = () => {
               </div>
             )}
           </div>
-          <div className='flex flex-wrap gap-3'>
+          <div className='flex flex-col sm:flex-row flex-wrap gap-3'>
             <button
               onClick={handleLinkPasskey}
-              className='bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-purple-500/50'
+              className='bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-purple-500/50 text-sm sm:text-base'
             >
               ➕ Link New Passkey
             </button>
             <button
               onClick={handleUnlinkPasskey}
-              className='bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='bg-gradient-to-r from-red-500 to-red-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base'
               disabled={!selectedPasskeyId}
             >
               ❌ Unlink Selected Passkey
@@ -177,14 +197,14 @@ const LoginPage = () => {
 
       {/* Account Linking Section */}
       {user && (
-        <div className='bg-gradient-to-r from-gray-800 to-gray-700 p-6 rounded-xl shadow-2xl border border-gray-600'>
-          <h2 className='text-2xl font-bold mb-4 text-white flex items-center gap-2'>
+        <div className='bg-gradient-to-r from-gray-800 to-gray-700 p-4 sm:p-6 rounded-xl shadow-2xl border border-gray-600'>
+          <h2 className='text-xl sm:text-2xl font-bold mb-4 text-white flex items-center gap-2'>
             <span className='text-green-400'>🔗</span> Link Accounts
           </h2>
           <div className='flex flex-wrap gap-3'>
             <button
               onClick={() => linkEmail()}
-              className='bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-green-500/50'
+              className='bg-gradient-to-r from-green-500 to-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-green-500/50 text-sm sm:text-base'
             >
               Link Gmail
             </button>
